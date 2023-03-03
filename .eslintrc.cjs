@@ -16,10 +16,13 @@ module.exports = {
   parserOptions: {
     ecmaVersion: "latest",
     sourceType: "module",
-    // project: "./tsconfig.json",
+    project: "./tsconfig.json",
   },
   plugins: ["react", "@typescript-eslint"],
   rules: {
     "@typescript-eslint/no-shadow": "off",
+    "react/function-component-definition": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-no-constructed-context-values": "off",
   },
 };

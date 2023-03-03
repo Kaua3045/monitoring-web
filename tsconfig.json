@@ -18,6 +18,7 @@
   },
   "include": [
     ".eslintrc.cjs",
+    "postcss.config.cjs",
     "src"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
