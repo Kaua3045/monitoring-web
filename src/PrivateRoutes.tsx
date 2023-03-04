@@ -16,24 +16,4 @@ const PrivateRoute = ({ children }: IProps) => {
   return <Navigate to="/login" />;
 };
 
-// const PrivateRoute: React.FC<PrivateRouteProps> = (props) => {
-//   // eslint-disable-next-line react/prop-types
-//   const { element, ...other } = props;
-//   const Element: any = element;
-//   // eslint-disable-next-line react/jsx-props-no-spreading
-//   return (
-//     <Route
-//       // eslint-disable-next-line react/jsx-props-no-spreading
-//       {...other}
-//       element={(prop: JSX.IntrinsicAttributes) => {
-//         return keycloak.authenticated ? (
-//           <Element {...prop} />
-//         ) : (
-//           <Navigate to="/login" />
-//         );
-//       }}
-//     />
-//   );
-// };
-
 export default PrivateRoute;
