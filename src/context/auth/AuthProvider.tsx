@@ -1,5 +1,5 @@
 import { useKeycloak } from "@react-keycloak/web";
-import { createContext, useState } from "react";
+import { createContext, useCallback, useEffect, useState } from "react";
 import Api from "../../utils/api";
 
 type IProps = {
@@ -24,6 +24,7 @@ type IUser = {
 interface AuthContextData {
   user: IUser;
   retrieveOrCreate(userR: IUserRetrieveOrCreate): Promise<void>;
+  isLoading: boolean;
 }
 
 export const AuthContext = createContext<AuthContextData>(
@@ -31,22 +32,39 @@ export const AuthContext = createContext<AuthContextData>(
 );
 
 const AuthProvider: React.FC<IProps> = ({ children }: IProps) => {
-  const { keycloak } = useKeycloak();
+  const { keycloak, initialized } = useKeycloak();
   Api.interceptors.request.use((config) => {
     // eslint-disable-next-line no-param-reassign
     config.headers.Authorization = `Bearer ${keycloak.token}`;
     return config;
   });
 
-  const [user, setUser] = useState<IUser>(() => {
-    const userLocal = localStorage.getItem("user");
+  const [user, setUser] = useState<IUser>({} as IUser);
+  const [isLoading, setIsLoading] = useState(true);
 
-    if (userLocal) {
-      return JSON.parse(userLocal);
-    }
+  useEffect(() => {
+    const loadUser = async () => {
+      if (keycloak.authenticated && initialized) {
+        const result = await Api.get(`/profile/${keycloak.tokenParsed?.sub}`);
 
-    return {};
-  });
+        setUser(result.data);
+      }
+
+      setIsLoading(false);
+    };
+
+    loadUser();
+  }, [keycloak, initialized]);
+
+  // const [user, setUser] = useState<IUser>(() => {
+  //   const userLocal = localStorage.getItem("user");
+
+  //   if (userLocal) {
+  //     return JSON.parse(userLocal);
+  //   }
+
+  //   return {};
+  // });
 
   async function retrieveOrCreate(userR: IUserRetrieveOrCreate) {
     await Api.get(`/profile/${userR.userId}`)
@@ -60,15 +78,14 @@ const AuthProvider: React.FC<IProps> = ({ children }: IProps) => {
         };
 
         setUser(payload);
-        localStorage.setItem("user", JSON.stringify(payload));
       })
       .catch(async (err) => {
         if (err.response.status === 404) {
           const result = await Api.post("/profile", {
-            userId: userR.userId,
+            user_id: userR.userId,
             username: userR.username,
             email: userR.email,
-            avatarUrl: userR.avatarUrl,
+            avatar_url: userR.avatarUrl,
           });
 
           const payload = {
@@ -80,12 +97,11 @@ const AuthProvider: React.FC<IProps> = ({ children }: IProps) => {
           };
 
           setUser(payload);
-          localStorage.setItem("user", JSON.stringify(payload));
         }
       });
   }
   return (
-    <AuthContext.Provider value={{ user, retrieveOrCreate }}>
+    <AuthContext.Provider value={{ user, retrieveOrCreate, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

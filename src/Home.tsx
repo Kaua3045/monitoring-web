@@ -1,5 +1,6 @@
 import { useKeycloak } from "@react-keycloak/web";
 import { useEffect } from "react";
+import Nav from "./components/Nav";
 import { useAuth } from "./context/auth/useAuth";
 
 const Home = () => {
@@ -23,7 +24,8 @@ const Home = () => {
   }, [initialized, keycloak]);
 
   return (
-    <div>
+    <div className="bg-slateDark-100 h-screen">
+      <Nav />
       <h1 className="text-green-800 text-4xl">
         Welcome {user?.userId} to the Homepage
       </h1>
