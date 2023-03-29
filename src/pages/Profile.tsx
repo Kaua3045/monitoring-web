@@ -1,4 +1,5 @@
 import { FaUserCircle } from "react-icons/fa";
+import Footer from "../components/Footer";
 import Nav from "../components/Nav";
 import UpdateProfileDialog from "../components/profile/UpdateProfile";
 import { useAuth } from "../context/auth/useAuth";
@@ -34,6 +35,8 @@ const Profile = () => {
           <UpdateProfileDialog />
         </div>
       </div>
+
+      <Footer container="mt-6" />
     </div>
   );
 };

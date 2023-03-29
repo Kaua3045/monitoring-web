@@ -48,7 +48,13 @@ const Avatar = () => {
           </DropdownMenuItem>
 
           <DropdownMenuItem className="group text-base leading-none text-white-100 rounded-[3px] flex items-center h-[25px] px-[5px] relative pl-[25px] select-none outline-none data-[disabled]:text-slateDark-1001 data-[disabled]:pointer-events-none data-[highlighted]:text-blue-1003">
-            <a href="/" onClick={() => keycloak.logout()}>
+            <a
+              href="/"
+              onClick={() => {
+                keycloak.logout();
+                keycloak.clearToken();
+              }}
+            >
               Sair
             </a>
           </DropdownMenuItem>

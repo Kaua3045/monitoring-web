@@ -2,6 +2,7 @@ import { useKeycloak } from "@react-keycloak/web";
 import { useEffect } from "react";
 import { BsLinkedin, BsDiscord } from "react-icons/bs";
 import { toast, ToastContainer } from "react-toastify";
+import Footer from "../components/Footer";
 import Nav from "../components/Nav";
 import { useAuth } from "../context/auth/useAuth";
 
@@ -75,6 +76,8 @@ const Home = () => {
           </div>
         </div>
       </div>
+
+      <Footer container="mt-44" />
     </div>
   );
 };
