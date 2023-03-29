@@ -58,7 +58,7 @@ const Pagination = () => {
   return (
     <div>
       <table className="min-w-full bg-slateDark-1002">
-        <thead className="bg-slateDark-600 text-blue-1002">
+        <thead className="bg-slateDark-650 text-blue-1002">
           <tr>
             <th className="w-1/3 text-left py-3 px-4 uppercase font-semibold text-sm">
               Título
@@ -93,38 +93,34 @@ const Pagination = () => {
         <ReactPaginate
           className="flex justify-center gap-1 mt-4"
           nextLabel={<FiChevronRight size={32} />}
-          nextClassName="bg-blue-800
-          w-9 h-9 text-blue-1002 
+          nextClassName="bg-slateDark-650
+          w-9 h-9 text-white-100 
           font-semibold
           flex items-center justify-center 
-          border rounded-sm border-blue-800
-          hover:bg-blue-700 
-          hover:border-blue-700 hover:text-blue-1001 cursor-pointer"
-          pageLinkClassName="bg-blue-800
-          w-9 h-9 text-blue-1002 
+          border rounded-sm border-slateDark-650
+          hover:opacity-50 cursor-pointer"
+          pageLinkClassName="bg-slateDark-650
+          w-9 h-9 text-white-100 
           font-semibold
           flex items-center justify-center 
-          border rounded-sm border-blue-800
-          hover:bg-blue-700 
-          hover:border-blue-700 hover:text-blue-1001 cursor-pointer"
-          activeLinkClassName="bg-blue-800
-          w-9 h-9 text-blue-1002 
+          border rounded-sm border-slateDark-650
+          hover:opacity-50 cursor-pointer"
+          activeLinkClassName="bg-slateDark-650
+          w-9 h-9 text-white-100 
           font-semibold
           flex items-center justify-center 
-          border rounded-sm border-blue-800
-          hover:bg-blue-700 
-          hover:border-blue-700 hover:text-blue-1001 cursor-pointer"
+          border rounded-sm border-slateDark-650
+          hover:opacity-50 cursor-pointer"
           onPageChange={handlePageChange}
           pageRangeDisplayed={5}
           pageCount={numberPage}
           previousLabel={<FiChevronLeft size={32} />}
-          previousClassName="bg-blue-800
-          w-9 h-9 text-blue-1002 
+          previousClassName="bg-slateDark-650
+          w-9 h-9 text-white-100 
           font-semibold
           flex items-center justify-center 
-          border rounded-sm border-blue-800
-          hover:bg-blue-700 
-          hover:border-blue-700 hover:text-blue-1001 cursor-pointer"
+          border rounded-sm border-slateDark-650
+          hover:opacity-50 cursor-pointer"
         />
       </div>
     </div>

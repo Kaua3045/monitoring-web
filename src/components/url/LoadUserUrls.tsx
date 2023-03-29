@@ -27,7 +27,7 @@ const LoadUserUrls = ({ items, total }: LoadUserUrlsType) => {
               <td className="w-1/3 text-left py-3 px-4">
                 <Link
                   to={`/metrics/${item.id}`}
-                  className="text-slateDark-700 hover:text-slateDark-400"
+                  className="text-slateDark-50 hover:opacity-70"
                 >
                   {item.title}
                 </Link>
@@ -36,12 +36,12 @@ const LoadUserUrls = ({ items, total }: LoadUserUrlsType) => {
               <td className="w-1/3 text-left py-3 px-4">
                 <a
                   href={item.url}
-                  className="text-slateDark-700 hover:text-slateDark-400"
+                  className="text-slateDark-50 hover:opacity-70"
                 >
                   {item.url.length > 35 ? item.url.slice(0, 28) : item.url}
                 </a>
               </td>
-              <td className="w-1/3 text-left py-3 px-4">
+              <td className="w-1/3 text-left py-3 px-4 text-slateDark-50">
                 {item.executeDateFormatted}
               </td>
               <td className="w-1/3 text-center py-3 px-4">

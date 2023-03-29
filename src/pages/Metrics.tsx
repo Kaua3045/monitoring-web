@@ -3,6 +3,8 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useKeycloak } from "@react-keycloak/web";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import LinkResponseTooltip from "../components/LinkResponseTooltip";
@@ -13,12 +15,22 @@ type UrlMetricsType = {
   id: string;
   urlId: string;
   responseMessage: string;
+  requestTime: string;
   statusCode: number;
+};
+
+type UrlType = {
+  id: number;
+  title: string;
+  url: string;
+  executeDateFormatted: string;
+  linkExecution: string;
 };
 
 const Metrics = () => {
   const { id } = useParams();
   const [urlMetrics, setUrlMetrics] = useState([]);
+  const [url, setUrl] = useState<UrlType>({} as UrlType);
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
 
@@ -26,15 +38,16 @@ const Metrics = () => {
 
   const urlMetricsFind = async () => {
     // if (keycloak.authenticated && initialized) {
-    console.log(id);
     const response = await Api.get(`/links-responses/${id}`, {
       params: {
         start: startTime,
         end: endTime,
       },
     });
-    console.log(response.data);
+
+    const urlResponse = await Api.get(`/links/${id}`);
     setUrlMetrics(response.data);
+    setUrl(urlResponse.data);
     // }
   };
 
@@ -52,32 +65,48 @@ const Metrics = () => {
     return urlMetrics.length > 0 ? resultUptime : "0%";
   };
 
+  const formatDate = () => {
+    const startTimeFormat = format(new Date(startTime), "dd/MM/yyyy HH:mm", {
+      locale: ptBR,
+    });
+
+    const endTimeFormat = format(new Date(endTime), "dd/MM/yyyy HH:mm", {
+      locale: ptBR,
+    });
+
+    return `Período ${startTimeFormat} - ${endTimeFormat}`;
+  };
+
   useEffect(() => {
     urlMetricsFind();
   }, [keycloak, initialized]);
 
   return (
-    <div className="bg-slateDark-100 h-screen w-full">
+    <div className="bg-slateDark-50 h-screen w-full">
       <Nav />
 
       <div className="flex items-center mt-28 flex-col">
-        <div className="bg-slateDark-1002/95 w-2/4 h-auto flex flex-col items-start pl-2 gap-3 rounded-t-sm rounded-tr-sm">
+        <div className="bg-slateDark-650 w-2/4 h-auto flex flex-col items-start pl-2 gap-3 rounded-t-[3px] rounded-tr-[3px]">
           <fieldset className="flex items-center gap-2 mt-2">
-            <label htmlFor="start-timestamp">Inicio</label>
+            <label htmlFor="start-timestamp" className="text-white-100">
+              Inicio
+            </label>
             <input
               type="datetime-local"
               aria-label="start-timestamp"
-              className="border-2 border-slateDark-700 rounded-md w-52 h-7"
+              className="pl-2 border-2 border-slateDark-50 bg-slateDark-50 text-white-100 outline-none rounded-md w-52 h-8"
               onChange={(e) => setStartTime(e.target.value)}
             />
           </fieldset>
 
           <fieldset className="flex items-center gap-[21px] mb-2">
-            <label htmlFor="fim-timestamp">Fim</label>
+            <label htmlFor="fim-timestamp" className="text-white-100">
+              Fim
+            </label>
             <input
               type="datetime-local"
               aria-label="fim-timestamp"
-              className="border-2 border-slateDark-700 rounded-md w-52 h-7"
+              className="pl-2 border-2 border-slateDark-50 bg-slateDark-50 text-white-100 outline-none rounded-md w-52 h-8"
               onChange={(e) => setEndTime(e.target.value)}
             />
           </fieldset>
@@ -85,7 +114,7 @@ const Metrics = () => {
           <div className="flex items-center -mt-2 mb-2">
             <button
               type="button"
-              className="bg-blue-800 text-slateDark-1002 h-8 w-20 border rounded-sm border-blue-800 hover:bg-blue-700 hover:text-slateDark-1001 hover:border-blue-700"
+              className="bg-blue-1003 text-slateDark-650 h-8 w-20 border rounded-sm border-blue-1003 hover:opacity-50"
               onClick={() => urlMetricsFind()}
             >
               Buscar
@@ -93,17 +122,24 @@ const Metrics = () => {
           </div>
         </div>
 
-        <div className="bg-slateDark-1002/95 w-2/4 h-auto shadow-md rounded-bl-sm rounded-br-sm">
-          <div>
-            <p className="text-slateDark-700 ml-2 mt-2 mb-2">
+        <div className="bg-slateDark-650/90 w-2/4 h-auto shadow-md rounded-bl-md rounded-br-md">
+          <div className="flex justify-around items-center">
+            <h3 className="text-white-100/80">{url.title}</h3>
+            {startTime.length <= 0 || endTime.length <= 0 ? (
+              <p className="text-white-100/80">últimos 30 dias</p>
+            ) : (
+              <p className="text-white-100/80">{formatDate()}</p>
+            )}
+
+            <p className="text-white-100/80 ml-2 mt-2 mb-2">
               Uptime: <span className="text-green-1000">{uptimeNumber()}</span>
             </p>
           </div>
 
-          <div>
+          <div className="flex flex-wrap max-w-1xl m-2">
             {urlMetrics.length <= 0 ? (
-              <p className="pl-2 text-slateDark-100">
-                Sua url não possui métricas
+              <p className="pl-2 text-white-100">
+                Sua url não possui métricas ainda
               </p>
             ) : (
               urlMetrics.flatMap((url: UrlMetricsType) => {
@@ -115,6 +151,7 @@ const Metrics = () => {
                       statusColor="text-green-1000"
                       message={url.responseMessage}
                       statusCode={url.statusCode}
+                      requestTime={url.requestTime}
                     />
                   );
                 }
@@ -127,6 +164,7 @@ const Metrics = () => {
                       statusColor="text-orangeDark-1000"
                       message={url.responseMessage}
                       statusCode={url.statusCode}
+                      requestTime={url.requestTime}
                     />
                   );
                 }
@@ -139,6 +177,7 @@ const Metrics = () => {
                       statusColor="text-tomato-1000"
                       message={url.responseMessage}
                       statusCode={url.statusCode}
+                      requestTime={url.requestTime}
                     />
                   );
                 }

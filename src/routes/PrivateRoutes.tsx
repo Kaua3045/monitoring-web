@@ -1,6 +1,5 @@
 import { useKeycloak } from "@react-keycloak/web";
 import { Navigate } from "react-router-dom";
-// import keycloak from "../utils/auth";
 
 type IProps = {
   children: JSX.Element;
@@ -18,7 +17,6 @@ const PrivateRoute = ({ children }: IProps) => {
   }
 
   if (keycloak.authenticated) {
-    console.log("aqui");
     return children;
   }
 

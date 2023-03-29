@@ -18,12 +18,12 @@ const Dashboard = () => {
   // https://github.com/davidgrzyb/tailwind-admin-template/blob/master/index.html
 
   return (
-    <div className="bg-slateDark-100 h-screen">
+    <div className="bg-slateDark-50 h-screen">
       <Nav />
 
       <div className="flex flex-col items-center mt-10">
         <div className="w-3/5 mt-12">
-          <h1 className="text-xl pb-3 text-slateDark-1002">Seus links</h1>
+          <h1 className="text-xl pb-3 text-white-100">Seus links</h1>
           {/* https://www.google.com/imgres?imgurl=https%3A%2F%2Fmedia.wpfrontendadmin.com%2Fwp-content%2Fuploads%2F2020%2F08%2F20164417%2F1.jpg&tbnid=r4TSr2Iwk9iNwM&vet=12ahUKEwjc4eTU3-r9AhW3OLkGHZIBB_YQMygDegUIARDCAQ..i&imgrefurl=https%3A%2F%2Fwpfrontendadmin.com%2F&docid=h1QA43nzsdtOnM&w=1400&h=788&q=dashboard%20to%20create%20and%20search%20frontend&ved=2ahUKEwjc4eTU3-r9AhW3OLkGHZIBB_YQMygDegUIARDCAQ */}
           <div>
             {/*  bg-slateDark-700 border rounded-sm border-slateDark-600 shadow-sm */}
@@ -38,16 +38,16 @@ const Dashboard = () => {
                 </button>
               </div> */}
 
-              <div className="py-3 text-left uppercase font-bold text-base text-blue-800 flex gap-2 justify-center">
+              <div className="py-3 text-left uppercase font-bold text-base text-white-100 flex gap-2 justify-center">
                 <input
                   type="text"
                   placeholder="Busque o link pelo título"
-                  className="bg-blue-800 text-slateDark-1002 h-10 w-48 pl-1 border rounded-sm border-blue-800 outline-none placeholder:text-slateDark-1001"
+                  className="bg-slateDark-650 text-white-100 h-10 w-48 pl-1 border rounded-md border-slateDark-650 outline-none font-normal placeholder:font-normal"
                 />
 
                 <button
                   type="button"
-                  className="bg-blue-800 text-slateDark-1002 h-10 w-20 border rounded-sm border-blue-800 hover:bg-blue-700 hover:text-slateDark-1001 hover:border-blue-700"
+                  className="bg-blue-1003 text-slateDark-650 font-semibold h-10 w-20 border rounded-md border-blue-1003 hover:opacity-50"
                 >
                   Buscar
                 </button>

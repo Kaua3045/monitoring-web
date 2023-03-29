@@ -1,6 +1,5 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Home from "../Home";
-import About from "../pages/About";
+import Home from "../pages/Home";
 import Dashboard from "../pages/Dashboard";
 import Login from "../pages/Login";
 import Metrics from "../pages/Metrics";
@@ -15,9 +14,6 @@ const AppRoutes = () => {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/about" element={<About />} />
-        {/* <Route path="/dashboard" element={<Dashboard />} /> */}
-        {/* <Route path="/metrics/:id" element={<Metrics />} /> */}
         <Route
           path="/dashboard"
           element={
