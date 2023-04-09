@@ -1,31 +1,9 @@
-import { useKeycloak } from "@react-keycloak/web";
-import { useEffect } from "react";
 import { BsLinkedin, BsDiscord } from "react-icons/bs";
 import { toast, ToastContainer } from "react-toastify";
 import Footer from "../components/Footer";
 import Nav from "../components/Nav";
-import { useAuth } from "../context/auth/useAuth";
 
 const Home = () => {
-  const { keycloak, initialized } = useKeycloak();
-  const { retrieveOrCreate } = useAuth();
-
-  useEffect(() => {
-    async function data() {
-      if (initialized && keycloak.authenticated) {
-        await retrieveOrCreate({
-          userId: keycloak.tokenParsed?.sub,
-          username: keycloak.tokenParsed?.preferred_username,
-          email: keycloak.tokenParsed?.email,
-          avatarUrl: keycloak.tokenParsed?.avatarUrl,
-        });
-      }
-    }
-
-    data();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialized, keycloak]);
-
   return (
     <div className="bg-slateDark-50 h-screen w-screen">
       <ToastContainer theme="dark" autoClose={3000} />

@@ -1,6 +1,7 @@
 import { FaUserCircle } from "react-icons/fa";
 import Footer from "../components/Footer";
 import Nav from "../components/Nav";
+import DeleteProfileDialog from "../components/profile/DeleteProfile";
 import UpdateProfileDialog from "../components/profile/UpdateProfile";
 import { useAuth } from "../context/auth/useAuth";
 
@@ -33,6 +34,7 @@ const Profile = () => {
           </div>
 
           <UpdateProfileDialog />
+          <DeleteProfileDialog id={user.profileId} />
         </div>
       </div>
 

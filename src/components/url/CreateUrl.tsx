@@ -6,22 +6,29 @@ import { useAuth } from "../../context/auth/useAuth";
 import Api from "../../utils/api";
 import Modal from "../Modal";
 
-const CreateUrl = () => {
-  const [openModal, setOpenModal] = useState(false);
+const CreateUrl = ({ openModal, setOpenModal }: any) => {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [executeDate, setExecuteDate] = useState("");
   const [linkExecution, setLinkExecution] = useState("NO_REPEAT");
-  const { user } = useAuth();
+  const { user, token } = useAuth();
 
   const createUrlMethod = () => {
-    Api.post("/links", {
-      title,
-      url,
-      execute_date: executeDate,
-      link_execution: linkExecution,
-      profile_id: user.profileId,
-    })
+    Api.post(
+      "/links",
+      {
+        title,
+        url,
+        execute_date: executeDate,
+        link_execution: linkExecution,
+        profile_id: user.profileId,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
       .then((response) => {
         if (response.status === 201) {
           toast.success("Link criado com sucesso!");
@@ -136,7 +143,7 @@ const CreateUrl = () => {
           </div>
 
           <button
-            type="button"
+            type="submit"
             onClick={() => createUrlMethod()}
             className="bg-blue-1003 text-slateDark-650 font-bold uppercase text-sm px-6 mt-2 py-3 rounded shadow hover:opacity-50 outline-none focus:outline-none mr-1 mb-1"
           >

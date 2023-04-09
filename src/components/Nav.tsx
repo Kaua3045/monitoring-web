@@ -1,8 +1,8 @@
-import { useKeycloak } from "@react-keycloak/web";
+import { useAuth } from "../context/auth/useAuth";
 import Profile from "./Avatar";
 
 const Nav = () => {
-  const { keycloak } = useKeycloak();
+  const { token } = useAuth();
 
   return (
     <header aria-label="Site Header" className="bg-slateDark-50 shadow-lg">
@@ -36,7 +36,7 @@ const Nav = () => {
 
           <div className="flex items-center gap-4">
             <div className="sm:flex sm:gap-4">
-              {keycloak.authenticated ? (
+              {token ? (
                 <Profile />
               ) : (
                 <>

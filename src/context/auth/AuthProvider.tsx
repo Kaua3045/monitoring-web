@@ -1,107 +1,160 @@
-import { useKeycloak } from "@react-keycloak/web";
-import { createContext, useCallback, useEffect, useState } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { createContext, useEffect, useState } from "react";
 import Api from "../../utils/api";
 
 type IProps = {
   children: JSX.Element;
 };
 
-type IUserRetrieveOrCreate = {
-  userId: string | undefined;
+type IUserCreate = {
   username: string | undefined;
   email: string | undefined;
+  password: string | undefined;
   avatarUrl: string | null;
 };
 
 type IUser = {
   profileId: string;
-  userId: string;
   username: string;
   email: string;
   avatarUrl: string | null;
 };
 
+type IUserAuth = {
+  email: string | undefined;
+  password: string | undefined;
+};
+
 interface AuthContextData {
   user: IUser;
-  retrieveOrCreate(userR: IUserRetrieveOrCreate): Promise<void>;
+  create(userR: IUserCreate): Promise<SuccessType | ErrorType>;
+  authenticate(userR: IUserAuth): Promise<SuccessType | ErrorType>;
+  loadUser(): Promise<void>;
+  logout(): void;
+  token: string | null;
   isLoading: boolean;
 }
+
+type ErrorType = {
+  status: number;
+  message?: string;
+  errors: string[];
+};
+
+type SuccessType = {
+  status: number;
+};
 
 export const AuthContext = createContext<AuthContextData>(
   {} as AuthContextData
 );
 
 const AuthProvider: React.FC<IProps> = ({ children }: IProps) => {
-  const { keycloak, initialized } = useKeycloak();
-  Api.interceptors.request.use((config) => {
-    // eslint-disable-next-line no-param-reassign
-    config.headers.Authorization = `Bearer ${keycloak.token}`;
-    return config;
-  });
-
   const [user, setUser] = useState<IUser>({} as IUser);
+  const token = localStorage.getItem("user_auth");
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const loadUser = async () => {
-      if (keycloak.authenticated && initialized) {
-        const result = await Api.get(`/profile/${keycloak.tokenParsed?.sub}`);
-
-        setUser(result.data);
-      }
-
-      setIsLoading(false);
-    };
-
-    loadUser();
-  }, [keycloak, initialized]);
-
-  // const [user, setUser] = useState<IUser>(() => {
-  //   const userLocal = localStorage.getItem("user");
-
-  //   if (userLocal) {
-  //     return JSON.parse(userLocal);
-  //   }
-
-  //   return {};
-  // });
-
-  async function retrieveOrCreate(userR: IUserRetrieveOrCreate) {
-    await Api.get(`/profile/${userR.userId}`)
-      .then((response) => {
-        const payload = {
-          profileId: response.data.profileId,
-          userId: response.data.userId,
-          username: response.data.username,
-          email: response.data.email,
-          avatarUrl: response.data.avatarUrl,
-        };
-
-        setUser(payload);
+  const loadUser = async () => {
+    if (token !== null || token !== undefined) {
+      Api.get(`/profile/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       })
-      .catch(async (err) => {
-        if (err.response.status === 404) {
-          const result = await Api.post("/profile", {
-            user_id: userR.userId,
-            username: userR.username,
-            email: userR.email,
-            avatar_url: userR.avatarUrl,
-          });
+        .then((response) => setUser(response.data))
+        .catch((err) => setUser({} as IUser));
+    }
 
-          const payload = {
-            profileId: result.data.profileId,
-            userId: result.data.userId,
-            username: result.data.username,
-            email: result.data.email,
-            avatarUrl: result.data.avatarUrl,
-          };
+    setIsLoading(false);
+  };
 
-          setUser(payload);
-        }
-      });
+  useEffect(() => {
+    loadUser();
+  }, [token]);
+
+  async function create(userR: IUserCreate): Promise<SuccessType | ErrorType> {
+    const result = await Api.post(`/profile`, {
+      username: userR.username,
+      email: userR.email,
+      password: userR.password,
+      avatarUrl: userR.avatarUrl,
+    });
+
+    if (result.status === 201) {
+      const payload = {
+        profileId: result.data.profileId,
+        username: result.data.username,
+        email: result.data.email,
+        avatarUrl: result.data.avatarUrl,
+      };
+
+      setUser(payload);
+      localStorage.setItem("user_auth", result.data.token);
+
+      window.location.reload();
+
+      return {
+        status: result.status,
+      };
+    }
+
+    if (result.status === 400) {
+      return {
+        status: result.status,
+        message: result.data.message,
+        errors: result.data.errors,
+      };
+    }
+
+    return {
+      status: result.status,
+      message: result.data.message,
+      errors: result.data.errors,
+    };
   }
+
+  async function authenticate(
+    userAuth: IUserAuth
+  ): Promise<SuccessType | ErrorType> {
+    const result = await Api.post(`/auth`, {
+      email: userAuth.email,
+      password: userAuth.password,
+    });
+
+    if (result.status === 200) {
+      localStorage.setItem("user_auth", result.data.token);
+      window.location.reload();
+
+      return {
+        status: result.status,
+      };
+    }
+
+    if (result.status === 404) {
+      return {
+        status: result.status,
+        message: result.data.message,
+        errors: result.data.errors,
+      };
+    }
+
+    return {
+      status: result.status,
+      message: result.data.message,
+      errors: result.data.errors,
+    };
+  }
+
+  async function logout() {
+    setUser({} as IUser);
+    localStorage.clear();
+    window.location.reload();
+  }
+
   return (
-    <AuthContext.Provider value={{ user, retrieveOrCreate, isLoading }}>
+    <AuthContext.Provider
+      value={{ user, create, authenticate, loadUser, logout, token, isLoading }}
+    >
       {children}
     </AuthContext.Provider>
   );

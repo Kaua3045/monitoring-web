@@ -14,6 +14,7 @@ import { FiEdit2 } from "react-icons/fi";
 import { AiOutlineClose } from "react-icons/ai";
 import { toast, ToastContainer } from "react-toastify";
 import Api from "../../utils/api";
+import { useAuth } from "../../context/auth/useAuth";
 
 type UrlId = {
   id: number;
@@ -30,18 +31,27 @@ const UpdateUrlDialog = ({
   executeDate,
   linkExecution,
 }: UrlId) => {
+  const { token } = useAuth();
   const [titleUpdated, setTitleUpdated] = useState<string>();
   const [urlUpdated, setUrlUpdated] = useState<string>();
   const [executeDateUpdated, setExecuteDateUpdated] = useState<string>();
   const [linkExecutionUpdated, setLinkExecutionUpdated] = useState<string>();
 
   const handleUpdateLink = () => {
-    Api.put(`/links/${id}`, {
-      title: titleUpdated,
-      url: urlUpdated,
-      execute_date: executeDateUpdated,
-      link_execution: linkExecutionUpdated,
-    })
+    Api.put(
+      `/links/${id}`,
+      {
+        title: titleUpdated,
+        url: urlUpdated,
+        execute_date: executeDateUpdated,
+        link_execution: linkExecutionUpdated,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
       .then((response) => {
         if (response.status === 200) {
           toast.success("Link atualizado com sucesso!");

@@ -2,7 +2,6 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useKeycloak } from "@react-keycloak/web";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useEffect, useState } from "react";
@@ -10,6 +9,7 @@ import { useParams } from "react-router-dom";
 import Footer from "../components/Footer";
 import LinkResponseTooltip from "../components/LinkResponseTooltip";
 import Nav from "../components/Nav";
+import { useAuth } from "../context/auth/useAuth";
 import Api from "../utils/api";
 
 type UrlMetricsType = {
@@ -30,26 +30,30 @@ type UrlType = {
 
 const Metrics = () => {
   const { id } = useParams();
+  const { token } = useAuth();
   const [urlMetrics, setUrlMetrics] = useState([]);
   const [url, setUrl] = useState<UrlType>({} as UrlType);
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
 
-  const { keycloak, initialized } = useKeycloak();
-
   const urlMetricsFind = async () => {
-    // if (keycloak.authenticated && initialized) {
     const response = await Api.get(`/links-responses/${id}`, {
       params: {
         start: startTime,
         end: endTime,
       },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
 
-    const urlResponse = await Api.get(`/links/${id}`);
+    const urlResponse = await Api.get(`/links/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     setUrlMetrics(response.data);
     setUrl(urlResponse.data);
-    // }
   };
 
   const uptimeNumber = (): string => {
@@ -80,7 +84,7 @@ const Metrics = () => {
 
   useEffect(() => {
     urlMetricsFind();
-  }, [keycloak, initialized]);
+  }, []);
 
   return (
     <div className="bg-slateDark-50 h-screen w-full">

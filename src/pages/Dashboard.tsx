@@ -16,7 +16,7 @@ const Dashboard = () => {
         <div className="w-3/5 mt-12">
           <h1 className="text-xl pb-3 text-white-100">Seus links</h1>
           <div>
-            <div className="min-w-full flex gap-2">
+            {/* <div className="min-w-full flex gap-2">
               <CreateUrl />
 
               <div className="py-3 text-left uppercase font-bold text-base text-white-100 flex gap-2 justify-center">
@@ -33,7 +33,7 @@ const Dashboard = () => {
                   Buscar
                 </button>
               </div>
-            </div>
+            </div> */}
 
             <Pagination />
           </div>

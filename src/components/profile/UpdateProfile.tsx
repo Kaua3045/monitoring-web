@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-unneeded-ternary */
 /* eslint-disable consistent-return */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import {
@@ -10,7 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@radix-ui/react-dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { FaUserCircle } from "react-icons/fa";
 import { FiCamera } from "react-icons/fi";
@@ -20,9 +22,10 @@ import { useAuth } from "../../context/auth/useAuth";
 import Api from "../../utils/api";
 
 const UpdateProfileDialog = () => {
-  const { user } = useAuth();
+  const { user, token, loadUser } = useAuth();
   const [username, setUsername] = useState<string>("");
   const [avatar, setAvatar] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleUpdateProfile = async () => {
     const data = new FormData();
@@ -30,10 +33,16 @@ const UpdateProfileDialog = () => {
     data.append("username", username);
 
     data.append("avatar_url", avatar!);
-    await Api.put(`/profile/${user.profileId}`, data)
+
+    await Api.put(`/profile/${user.profileId}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((response) => {
         if (response.status === 200) {
           toast.success("Perfil atualizado com sucesso!");
+          setIsLoading(false);
         }
       })
       .catch((err) => {
@@ -51,6 +60,10 @@ const UpdateProfileDialog = () => {
         }
       });
   };
+
+  useEffect(() => {
+    loadUser();
+  }, [isLoading]);
 
   return (
     <>
@@ -85,7 +98,7 @@ const UpdateProfileDialog = () => {
                     className="w-32 h-32 rounded-full"
                   />
                 ) : (
-                  <FaUserCircle size={128} />
+                  <FaUserCircle size={128} className="text-slateDark-1002" />
                 )}
 
                 <label

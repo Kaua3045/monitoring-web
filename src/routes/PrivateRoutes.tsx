@@ -1,22 +1,14 @@
-import { useKeycloak } from "@react-keycloak/web";
 import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/auth/useAuth";
 
 type IProps = {
   children: JSX.Element;
 };
 
 const PrivateRoute = ({ children }: IProps) => {
-  const { keycloak, initialized } = useKeycloak();
+  const auth = useAuth();
 
-  if (!initialized) {
-    return (
-      <div className="w-screen h-screen text-gray-600 text-xl flex justify-center items-center">
-        Carregando...
-      </div>
-    );
-  }
-
-  if (keycloak.authenticated) {
+  if (auth.token) {
     return children;
   }
 

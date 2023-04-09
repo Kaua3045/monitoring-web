@@ -31,7 +31,6 @@ const LoadUserUrls = ({ items, total }: LoadUserUrlsType) => {
                 >
                   {item.title}
                 </Link>
-                {/* <a href="/metrics">{item.title}</a> */}
               </td>
               <td className="w-1/3 text-left py-3 px-4">
                 <a
