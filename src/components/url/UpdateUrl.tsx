@@ -13,16 +13,14 @@ import { useState } from "react";
 import { FiEdit2 } from "react-icons/fi";
 import { AiOutlineClose } from "react-icons/ai";
 import { toast, ToastContainer } from "react-toastify";
+import { useMutation } from "@tanstack/react-query";
 import Api from "../../utils/api";
 import { useAuth } from "../../context/auth/useAuth";
+import { queryClient } from "../../utils/ReactQuery";
+import { showUrlErrorMessages, urlMessages } from "../../utils/Messages";
+import { ErrorType, UrlType } from "../../utils/CommonTypes";
 
-type UrlId = {
-  id: number;
-  title: string;
-  url: string;
-  executeDate: string;
-  linkExecution: string;
-};
+const queryKeyUpdateUrl = "link_update";
 
 const UpdateUrlDialog = ({
   id,
@@ -30,76 +28,75 @@ const UpdateUrlDialog = ({
   url,
   executeDate,
   linkExecution,
-}: UrlId) => {
+}: UrlType) => {
   const { token } = useAuth();
   const [titleUpdated, setTitleUpdated] = useState<string>();
   const [urlUpdated, setUrlUpdated] = useState<string>();
   const [executeDateUpdated, setExecuteDateUpdated] = useState<string>();
   const [linkExecutionUpdated, setLinkExecutionUpdated] = useState<string>();
+  const [open, setOpen] = useState(false);
 
-  const handleUpdateLink = () => {
-    Api.put(
-      `/links/${id}`,
+  const { mutate, isError, error } = useMutation<UrlType, ErrorType, UrlType>({
+    mutationKey: [queryKeyUpdateUrl],
+    mutationFn: async ({
+      id,
+      title,
+      url,
+      executeDate,
+      linkExecution,
+    }: UrlType) => {
+      const response = await Api.put(
+        `/links/${id}`,
+        {
+          title,
+          url,
+          execute_date: executeDate,
+          link_execution: linkExecution,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return response.data;
+    },
+  });
+
+  const handleUpdateUrl = () => {
+    mutate(
       {
+        id,
         title: titleUpdated,
         url: urlUpdated,
-        execute_date: executeDateUpdated,
-        link_execution: linkExecutionUpdated,
+        executeDate: executeDateUpdated,
+        linkExecution: linkExecutionUpdated,
       },
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
+        onError() {
+          setOpen(true);
+        },
+        onSuccess() {
+          toast.success(urlMessages.success.updated);
+          queryClient.invalidateQueries(["list_user_links"]);
+          setOpen(false);
         },
       }
-    )
-      .then((response) => {
-        if (response.status === 200) {
-          toast.success("Link atualizado com sucesso!");
-        }
-      })
-      .catch((err) => {
-        if (err.response.status === 400) {
-          const { message } = err.response.data.errors[0];
+    );
+  };
 
-          const titleEmpty = "'title' should not be null or empty";
-          const urlEmpty = "'url' you must provide a valid url";
-          const executeDateEmpty = "'executeDate' should not be empty";
-          const executeDatePassed =
-            "'executeDate' cannot be a date that has already passed";
-          const linkExecutionEmpty = "'linkExecution' should not be null";
-
-          switch (message) {
-            case titleEmpty:
-              toast.error("O título não pode ser inválido!");
-              break;
-            case urlEmpty:
-              toast.error("A url deve ser válida!");
-              break;
-            case executeDateEmpty:
-              toast.error("A data de verificação não pode ser vazia!");
-              break;
-            case executeDatePassed:
-              toast.error("A data de verificação não pode ser no passado!");
-              break;
-            case linkExecutionEmpty:
-              toast.error("O tipo não pode ser vazio!");
-              break;
-            default:
-              toast.error("Erro interno, contate o suporte!");
-          }
-
-          if (err.response.status === 500) {
-            toast.error("Erro interno, contate o suporte!");
-          }
-        }
-      });
+  const showErrorBordForm = (type: string) => {
+    return isError && error.response.data.errors[0].message.includes(type)
+      ? "pl-2 border-2 border-tomato-900 bg-slateDark-50 text-white-100 outline-none rounded-md w-52 h-9"
+      : "pl-2 border-2 border-slateDark-50 bg-slateDark-50 text-white-100 outline-none rounded-md w-52 h-9";
   };
 
   return (
     <>
       <ToastContainer theme="dark" autoClose={3000} />
 
-      <Dialog>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <button type="button">
             <FiEdit2 className="h-5 w-5 text-green-1000 hover:text-green-800" />
@@ -117,7 +114,14 @@ const UpdateUrlDialog = ({
               Faça as alterações que você quiser e no fim clique em atualizar
             </DialogDescription>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col text-center gap-2">
+              {isError ? (
+                <p className="text-tomato-900">
+                  {showUrlErrorMessages(error.response.data.errors[0].message)}
+                </p>
+              ) : (
+                ""
+              )}
               <fieldset className="mb-2 flex flex-col items-center">
                 <label htmlFor="title" className="text-white-100">
                   Título
@@ -127,7 +131,7 @@ const UpdateUrlDialog = ({
                   id="title"
                   defaultValue={title}
                   onChange={(e) => setTitleUpdated(e.target.value)}
-                  className="pl-2 border-2 border-slateDark-50 bg-slateDark-50 text-white-100 outline-none rounded-md w-52 h-8"
+                  className={showErrorBordForm("title")}
                 />
               </fieldset>
 
@@ -141,7 +145,7 @@ const UpdateUrlDialog = ({
                   id="url"
                   defaultValue={url}
                   onChange={(e) => setUrlUpdated(e.target.value)}
-                  className="pl-2 border-2 border-slateDark-50 bg-slateDark-50 text-white-100 outline-none rounded-md w-52 h-8"
+                  className={showErrorBordForm("url")}
                 />
               </fieldset>
 
@@ -155,7 +159,7 @@ const UpdateUrlDialog = ({
                   id="executeDate"
                   defaultValue={executeDate}
                   onChange={(e) => setExecuteDateUpdated(e.target.value)}
-                  className="pl-2 border-2 border-slateDark-50 bg-slateDark-50 text-white-100 outline-none rounded-md w-52 h-8"
+                  className={showErrorBordForm("executeDate")}
                 />
               </fieldset>
 
@@ -168,7 +172,7 @@ const UpdateUrlDialog = ({
                   name="linkExecution"
                   defaultValue={linkExecution}
                   onChange={(e) => setLinkExecutionUpdated(e.target.value)}
-                  className="pl-2 border-2 border-slateDark-50 bg-slateDark-50 text-white-100 outline-none rounded-md w-52 h-8"
+                  className={showErrorBordForm("linkExecution")}
                 >
                   <option value="NO_REPEAT">Não Repetir</option>
                   <option value="ON_SPECIFIC_DAY">
@@ -183,15 +187,13 @@ const UpdateUrlDialog = ({
             </div>
 
             <div className="flex justify-center pt-4 gap-8">
-              <DialogClose asChild>
-                <button
-                  type="button"
-                  className="bg-blue-1003 border-blue-1003 font-semibold text-slateDark-650 h-8 w-52 rounded-md hover:opacity-50"
-                  onClick={() => handleUpdateLink()}
-                >
-                  Atualizar
-                </button>
-              </DialogClose>
+              <button
+                type="button"
+                className="bg-blue-1003 border-blue-1003 font-semibold text-slateDark-650 h-8 w-52 rounded-md hover:opacity-50"
+                onClick={() => handleUpdateUrl()}
+              >
+                Atualizar
+              </button>
             </div>
 
             <DialogClose asChild>

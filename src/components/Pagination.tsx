@@ -1,39 +1,24 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ReactPaginate from "react-paginate";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { useQuery } from "@tanstack/react-query";
+import { ToastContainer } from "react-toastify";
 import { useAuth } from "../context/auth/useAuth";
 import Api from "../utils/api";
 import LoadUserUrls from "./url/LoadUserUrls";
 import CreateUrl from "./url/CreateUrl";
+import { queryClient } from "../utils/ReactQuery";
 
-type LoadUserUrlsType = {
-  currentPage: number;
-  perPage: number;
-  total: number;
-  items: [
-    {
-      id: number;
-      title: string;
-      url: string;
-      executeDateFormatted: string;
-      linkExecution: string;
-    }
-  ];
-};
-
-type PageSelectedType = {
-  selected: number;
-};
+const queryKeyName = "list_user_links";
 
 const Pagination = () => {
-  const { user, isLoading, token } = useAuth();
-  const [urls, setUrls] = useState<LoadUserUrlsType>({} as LoadUserUrlsType);
-  const [loading, setLoading] = useState(true);
+  const { user, token } = useAuth();
   const [openModal, setOpenModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState<number | undefined>(0);
 
-  const allUrls = async (currentPage: number) => {
-    if (!isLoading && user.profileId !== undefined) {
+  const { data, isFetching } = useQuery({
+    queryKey: [queryKeyName, currentPage],
+    queryFn: async () => {
       const response = await Api.get(`/links/list/${user.profileId}`, {
         params: {
           page: currentPage,
@@ -43,23 +28,29 @@ const Pagination = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      setUrls(response.data);
-      setLoading(false);
-    }
-  };
+      return response.data;
+    },
+    enabled: !!user.profileId,
+    keepPreviousData: true,
+  });
 
-  useEffect(() => {
-    allUrls(0);
-  }, [user, setOpenModal]);
+  if (isFetching) {
+    return (
+      <div>
+        <h1>Carregando...</h1>
+      </div>
+    );
+  }
 
-  const numberPage = urls.total >= 1 ? Math.ceil(urls.total / urls.perPage) : 0;
-
-  const handlePageChange = ({ selected }: PageSelectedType) => {
-    allUrls(selected);
-  };
+  if (data !== undefined && data.totalPage > 0 && data.items.length <= 0) {
+    setCurrentPage(0);
+    queryClient.invalidateQueries([queryKeyName]);
+  }
 
   return (
     <div>
+      <ToastContainer theme="dark" autoClose={3000} />
+
       <div className="min-w-full flex gap-2">
         <CreateUrl openModal={openModal} setOpenModal={setOpenModal} />
 
@@ -103,8 +94,8 @@ const Pagination = () => {
         </thead>
 
         <tbody className="text-slateDark-800">
-          {loading === false ? (
-            <LoadUserUrls items={urls.items} total={urls.total} />
+          {data !== undefined && data.items.length > 0 ? (
+            <LoadUserUrls items={data.items} total={data.total} />
           ) : (
             <tr />
           )}
@@ -112,38 +103,42 @@ const Pagination = () => {
       </table>
 
       <div>
-        <ReactPaginate
-          className="flex justify-center gap-1 mt-4"
-          nextLabel={<FiChevronRight size={32} />}
-          nextClassName="bg-slateDark-650
-          w-9 h-9 text-white-100 
-          font-semibold
-          flex items-center justify-center 
-          border rounded-sm border-slateDark-650
-          hover:opacity-50 cursor-pointer"
-          pageLinkClassName="bg-slateDark-650
-          w-9 h-9 text-white-100 
-          font-semibold
-          flex items-center justify-center 
-          border rounded-sm border-slateDark-650
-          hover:opacity-50 cursor-pointer"
-          activeClassName="bg-slateDark-650
-          w-9 h-9 text-white-100 
-          font-semibold
-          flex items-center justify-center 
-          border rounded-sm border-slateDark-650
-          hover:opacity-50 cursor-pointer"
-          onPageChange={handlePageChange}
-          pageRangeDisplayed={5}
-          pageCount={numberPage}
-          previousLabel={<FiChevronLeft size={32} />}
-          previousClassName="bg-slateDark-650
-          w-9 h-9 text-white-100 
-          font-semibold
-          flex items-center justify-center 
-          border rounded-sm border-slateDark-650
-          hover:opacity-50 cursor-pointer"
-        />
+        {data !== undefined && (
+          <ReactPaginate
+            className="flex justify-center gap-1 mt-4"
+            nextLabel={<FiChevronRight size={32} />}
+            nextClassName="bg-slateDark-650
+        w-9 h-9 text-white-100 
+        font-semibold
+        flex items-center justify-center 
+        border rounded-sm border-slateDark-650
+        hover:opacity-50 cursor-pointer"
+            pageLinkClassName="bg-slateDark-650
+        w-9 h-9 text-white-100 
+        font-semibold
+        flex items-center justify-center 
+        border rounded-sm border-slateDark-650
+        hover:opacity-50 cursor-pointer"
+            activeClassName="bg-slateDark-650
+        w-9 h-9 text-white-100 
+        font-semibold
+        flex items-center justify-center 
+        border rounded-sm border-slateDark-650
+        hover:opacity-50 cursor-pointer"
+            onClick={(e) => {
+              setCurrentPage(e.nextSelectedPage);
+            }}
+            pageRangeDisplayed={5}
+            pageCount={data.totalPage}
+            previousLabel={<FiChevronLeft size={32} />}
+            previousClassName="bg-slateDark-650
+        w-9 h-9 text-white-100 
+        font-semibold
+        flex items-center justify-center 
+        border rounded-sm border-slateDark-650
+        hover:opacity-50 cursor-pointer"
+          />
+        )}
       </div>
     </div>
   );

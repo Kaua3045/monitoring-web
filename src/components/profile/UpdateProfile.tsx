@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unneeded-ternary */
 /* eslint-disable consistent-return */
@@ -12,7 +13,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@radix-ui/react-dialog";
-import { useEffect, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { FaUserCircle } from "react-icons/fa";
 import { FiCamera } from "react-icons/fi";
@@ -20,55 +22,72 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
 import { useAuth } from "../../context/auth/useAuth";
 import Api from "../../utils/api";
+import { ErrorType } from "../../utils/CommonTypes";
+import {
+  profileMessages,
+  showProfileErrorMessages,
+} from "../../utils/Messages";
+import { queryClient } from "../../utils/ReactQuery";
+
+const queryKeyUpdateProfile = "profile_update";
+
+type ProfileUpdate = {
+  profileId: string;
+  username: string;
+  avatar: File | null;
+};
+
+type ProfileIdType = {
+  id: string;
+};
 
 const UpdateProfileDialog = () => {
-  const { user, token, loadUser } = useAuth();
+  const { user, token } = useAuth();
   const [username, setUsername] = useState<string>("");
   const [avatar, setAvatar] = useState<File | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+
+  const { mutate, isError, error } = useMutation<
+    ProfileIdType,
+    ErrorType,
+    ProfileUpdate
+  >({
+    mutationKey: [queryKeyUpdateProfile],
+    mutationFn: async ({ profileId, username, avatar }: ProfileUpdate) => {
+      const data = new FormData();
+      data.append("username", username);
+      data.append("avatar_url", avatar!);
+
+      const response = await Api.put(`/profile/${profileId}`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return response.data;
+    },
+    onError() {
+      setOpen(true);
+    },
+    onSuccess() {
+      toast.success(profileMessages.success.updated);
+      queryClient.invalidateQueries(["user"]);
+      setOpen(false);
+    },
+  });
 
   const handleUpdateProfile = async () => {
-    const data = new FormData();
-
-    data.append("username", username);
-
-    data.append("avatar_url", avatar!);
-
-    await Api.put(`/profile/${user.profileId}`, data, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => {
-        if (response.status === 200) {
-          toast.success("Perfil atualizado com sucesso!");
-          setIsLoading(false);
-        }
-      })
-      .catch((err) => {
-        if (err.response.status === 400) {
-          switch (err.response.data.message) {
-            case "Image type is not valid":
-              toast.error("Esse tipo de imagem não é aceito!");
-              break;
-            case "Image size is not valid":
-              toast.error("Essa imagem é grande de mais!");
-              break;
-            default:
-              toast.error("Erro interno, contate o suporte!");
-          }
-        }
-      });
+    mutate({
+      profileId: user.profileId,
+      username,
+      avatar,
+    });
   };
-
-  useEffect(() => {
-    loadUser();
-  }, [isLoading]);
 
   return (
     <>
       <ToastContainer theme="dark" autoClose={3000} />
-      <Dialog>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <button
             type="button"
@@ -89,13 +108,20 @@ const UpdateProfileDialog = () => {
               Faça as alterações que você quiser e no fim clique em atualizar
             </DialogDescription>
 
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col text-center gap-8">
+              {isError ? (
+                <p className="text-tomato-900">
+                  {showProfileErrorMessages(error.response.data.message)}
+                </p>
+              ) : (
+                ""
+              )}
               <fieldset className="relative self-center">
                 {user.avatarUrl ? (
                   <img
                     src={user.avatarUrl}
                     alt="Perfil"
-                    className="w-32 h-32 rounded-full"
+                    className="w-32 h-32 rounded-full object-cover"
                   />
                 ) : (
                   <FaUserCircle size={128} className="text-slateDark-1002" />
@@ -126,21 +152,19 @@ const UpdateProfileDialog = () => {
                   id="username"
                   defaultValue={user.username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="pl-2 border-2 border-slateDark-50 bg-slateDark-50 text-white-100 outline-none rounded-md w-52 h-8"
+                  className="pl-2 border-2 border-slateDark-50 bg-slateDark-50 text-white-100 outline-none rounded-md w-52 h-9"
                 />
               </fieldset>
             </div>
 
             <div className="flex justify-center pt-4 gap-8">
-              <DialogClose asChild>
-                <button
-                  type="button"
-                  className="bg-blue-1003 text-slateDark-650 font-semibold h-8 w-32 rounded-md hover:opacity-50"
-                  onClick={() => handleUpdateProfile()}
-                >
-                  Atualizar
-                </button>
-              </DialogClose>
+              <button
+                type="button"
+                className="bg-blue-1003 text-slateDark-650 font-semibold h-8 w-32 rounded-md hover:opacity-50"
+                onClick={() => handleUpdateProfile()}
+              >
+                Atualizar
+              </button>
             </div>
 
             <DialogClose asChild>

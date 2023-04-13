@@ -1,6 +1,5 @@
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -9,41 +8,60 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@radix-ui/react-alert-dialog";
+import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import { BsFillTrashFill } from "react-icons/bs";
 import { toast, ToastContainer } from "react-toastify";
 import { useAuth } from "../../context/auth/useAuth";
 import Api from "../../utils/api";
+import { commonMessages, urlMessages } from "../../utils/Messages";
+import { queryClient } from "../../utils/ReactQuery";
 
 type UrlId = {
   id: number;
 };
 
+const queryKeyDeleteUrl = "link_delete";
+
 const DeleteUrlDialog = ({ id }: UrlId) => {
   const { token } = useAuth();
+  const [open, setOpen] = useState(false);
+
+  const mutation = useMutation({
+    mutationKey: [queryKeyDeleteUrl],
+    mutationFn: async ({ id }: UrlId) => {
+      const response = await Api.delete(`/links/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      return response;
+    },
+  });
 
   const handleDeleteLink = () => {
-    Api.delete(`/links/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => {
-        if (response.status === 204) {
-          toast.success("Link deletado com sucesso!");
-        }
-      })
-      .catch((err) => {
-        if (err.response.status === 500) {
-          toast.error("Erro interno, contate o suporte!");
-        }
-      });
+    mutation.mutate(
+      { id },
+      {
+        onSuccess() {
+          toast.success(urlMessages.success.deleted);
+          queryClient.invalidateQueries(["list_user_links"]);
+          setOpen(false);
+        },
+        onError() {
+          toast.error(commonMessages.serverError);
+          setOpen(true);
+        },
+      }
+    );
   };
 
   return (
     <>
       <ToastContainer theme="dark" autoClose={3000} />
 
-      <AlertDialog>
+      <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogTrigger asChild>
           <button type="button">
             <BsFillTrashFill className="text-tomato-900 h-5 w-5 hover:text-tomato-800" />
@@ -72,15 +90,13 @@ const DeleteUrlDialog = ({ id }: UrlId) => {
                 </button>
               </AlertDialogCancel>
 
-              <AlertDialogAction asChild>
-                <button
-                  type="button"
-                  className="bg-tomato-500 text-tomato-1001 h-8 w-36 rounded-md hover:bg-tomato-400 hover:text-tomato-1000"
-                  onClick={() => handleDeleteLink()}
-                >
-                  Sim, deletar link
-                </button>
-              </AlertDialogAction>
+              <button
+                type="button"
+                className="bg-tomato-500 text-tomato-1001 h-8 w-36 rounded-md hover:bg-tomato-400 hover:text-tomato-1000"
+                onClick={() => handleDeleteLink()}
+              >
+                Sim, deletar link
+              </button>
             </div>
           </AlertDialogContent>
         </AlertDialogPortal>

@@ -9,10 +9,10 @@ import { FaUserCircle } from "react-icons/fa";
 import { useAuth } from "../context/auth/useAuth";
 
 const Avatar = () => {
-  const { user, isLoading, logout } = useAuth();
+  const { user, isFetching, logout } = useAuth();
 
   const imageUrl = () => {
-    if (!isLoading && user.avatarUrl) {
+    if (!isFetching && user.avatarUrl) {
       return (
         <img
           className="w-12 h-12 object-cover rounded-full hover:cursor-pointer mb-1 mt-1"

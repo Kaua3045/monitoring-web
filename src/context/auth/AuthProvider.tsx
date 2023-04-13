@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { createContext, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { createContext, useState } from "react";
 import Api from "../../utils/api";
 
 type IProps = {
@@ -27,23 +28,12 @@ type IUserAuth = {
 
 interface AuthContextData {
   user: IUser;
-  create(userR: IUserCreate): Promise<SuccessType | ErrorType>;
-  authenticate(userR: IUserAuth): Promise<SuccessType | ErrorType>;
-  loadUser(): Promise<void>;
+  create(userR: IUserCreate): void;
+  authenticate(userR: IUserAuth): void;
   logout(): void;
   token: string | null;
-  isLoading: boolean;
+  isFetching: boolean;
 }
-
-type ErrorType = {
-  status: number;
-  message?: string;
-  errors: string[];
-};
-
-type SuccessType = {
-  status: number;
-};
 
 export const AuthContext = createContext<AuthContextData>(
   {} as AuthContextData
@@ -52,27 +42,38 @@ export const AuthContext = createContext<AuthContextData>(
 const AuthProvider: React.FC<IProps> = ({ children }: IProps) => {
   const [user, setUser] = useState<IUser>({} as IUser);
   const token = localStorage.getItem("user_auth");
-  const [isLoading, setIsLoading] = useState(true);
 
-  const loadUser = async () => {
-    if (token !== null || token !== undefined) {
-      Api.get(`/profile/me`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((response) => setUser(response.data))
-        .catch((err) => setUser({} as IUser));
-    }
+  const loadUser = async (token: string | null) => {
+    const response = await Api.get(`/profile/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-    setIsLoading(false);
+    return response.data;
   };
 
-  useEffect(() => {
-    loadUser();
-  }, [token]);
+  const { isFetching } = useQuery({
+    queryKey: ["user", token],
+    queryFn: () => {
+      if (token !== null) {
+        return loadUser(token);
+      }
+      return {} as IUser;
+    },
+    onError(error: any) {
+      if (error.response.data.message === "Token expired!") {
+        setUser({} as IUser);
+        localStorage.clear();
+      }
+    },
+    onSuccess(data) {
+      setUser(data);
+    },
+    retry: false,
+  });
 
-  async function create(userR: IUserCreate): Promise<SuccessType | ErrorType> {
+  async function create(userR: IUserCreate) {
     const result = await Api.post(`/profile`, {
       username: userR.username,
       email: userR.email,
@@ -92,30 +93,10 @@ const AuthProvider: React.FC<IProps> = ({ children }: IProps) => {
       localStorage.setItem("user_auth", result.data.token);
 
       window.location.reload();
-
-      return {
-        status: result.status,
-      };
     }
-
-    if (result.status === 400) {
-      return {
-        status: result.status,
-        message: result.data.message,
-        errors: result.data.errors,
-      };
-    }
-
-    return {
-      status: result.status,
-      message: result.data.message,
-      errors: result.data.errors,
-    };
   }
 
-  async function authenticate(
-    userAuth: IUserAuth
-  ): Promise<SuccessType | ErrorType> {
+  async function authenticate(userAuth: IUserAuth) {
     const result = await Api.post(`/auth`, {
       email: userAuth.email,
       password: userAuth.password,
@@ -124,25 +105,7 @@ const AuthProvider: React.FC<IProps> = ({ children }: IProps) => {
     if (result.status === 200) {
       localStorage.setItem("user_auth", result.data.token);
       window.location.reload();
-
-      return {
-        status: result.status,
-      };
     }
-
-    if (result.status === 404) {
-      return {
-        status: result.status,
-        message: result.data.message,
-        errors: result.data.errors,
-      };
-    }
-
-    return {
-      status: result.status,
-      message: result.data.message,
-      errors: result.data.errors,
-    };
   }
 
   async function logout() {
@@ -153,7 +116,7 @@ const AuthProvider: React.FC<IProps> = ({ children }: IProps) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, create, authenticate, loadUser, logout, token, isLoading }}
+      value={{ user, create, authenticate, logout, token, isFetching }}
     >
       {children}
     </AuthContext.Provider>

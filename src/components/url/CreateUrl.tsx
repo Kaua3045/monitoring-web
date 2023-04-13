@@ -1,80 +1,100 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 
+import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import { useAuth } from "../../context/auth/useAuth";
 import Api from "../../utils/api";
+import { ErrorType } from "../../utils/CommonTypes";
+import { showUrlErrorMessages, urlMessages } from "../../utils/Messages";
+import { queryClient } from "../../utils/ReactQuery";
 import Modal from "../Modal";
 
-const CreateUrl = ({ openModal, setOpenModal }: any) => {
+const queryKeyCreateUrl = "link_create";
+
+type UrlCreate = {
+  titleToCreate: string | undefined;
+  urlToCreate: string | undefined;
+  executeDateToCreate: string | undefined;
+  linkExecutionToCreate: string | undefined;
+  profileId: string | undefined;
+};
+
+type ModalStatus = {
+  openModal: boolean;
+  setOpenModal: (open: boolean) => void;
+};
+
+type UrlId = {
+  id: string;
+};
+
+const CreateUrl = ({ openModal, setOpenModal }: ModalStatus) => {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [executeDate, setExecuteDate] = useState("");
   const [linkExecution, setLinkExecution] = useState("NO_REPEAT");
   const { user, token } = useAuth();
 
+  const { mutate, isError, error } = useMutation<UrlId, ErrorType, UrlCreate>({
+    mutationKey: [queryKeyCreateUrl],
+    mutationFn: async ({
+      titleToCreate,
+      urlToCreate,
+      executeDateToCreate,
+      linkExecutionToCreate,
+      profileId,
+    }: UrlCreate) => {
+      const response = await Api.post(
+        `/links`,
+        {
+          title: titleToCreate,
+          url: urlToCreate,
+          execute_date: executeDateToCreate,
+          link_execution: linkExecutionToCreate,
+          profile_id: profileId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return response.data;
+    },
+  });
+
   const createUrlMethod = () => {
-    Api.post(
-      "/links",
+    mutate(
       {
-        title,
-        url,
-        execute_date: executeDate,
-        link_execution: linkExecution,
-        profile_id: user.profileId,
+        titleToCreate: title,
+        urlToCreate: url,
+        executeDateToCreate: executeDate,
+        linkExecutionToCreate: linkExecution,
+        profileId: user.profileId,
       },
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
+        onError() {
+          setOpenModal(true);
+        },
+        onSuccess() {
+          toast.success(urlMessages.success.created);
+          setOpenModal(false);
+          queryClient.invalidateQueries(["list_user_links"]);
         },
       }
-    )
-      .then((response) => {
-        if (response.status === 201) {
-          toast.success("Link criado com sucesso!");
-          setOpenModal(false);
-        }
-      })
-      .catch((err) => {
-        if (err.response.status === 400) {
-          const { message } = err.response.data.errors[0];
+    );
+  };
 
-          const titleEmpty = "'title' should not be null or empty";
-          const urlEmpty = "'url' you must provide a valid url";
-          const executeDateEmpty = "'executeDate' should not be empty";
-          const executeDatePassed =
-            "'executeDate' cannot be a date that has already passed";
-          const linkExecutionEmpty = "'linkExecution' should not be null";
-
-          switch (message) {
-            case titleEmpty:
-              toast.error("O título não pode ser inválido!");
-              break;
-            case urlEmpty:
-              toast.error("A url deve ser válida!");
-              break;
-            case executeDateEmpty:
-              toast.error("A data de verificação não pode ser vazia!");
-              break;
-            case executeDatePassed:
-              toast.error("A data de verificação não pode ser no passado!");
-              break;
-            case linkExecutionEmpty:
-              toast.error("O tipo não pode ser vazio!");
-              break;
-            default:
-              toast.error("Erro interno, contate o suporte!");
-          }
-
-          if (err.response.status === 500) {
-            toast.error("Erro interno, contate o suporte!");
-          }
-        }
-      });
+  const showErrorBordForm = (type: string) => {
+    return isError && error.response.data.errors[0].message.includes(type)
+      ? "pl-2 border-2 border-tomato-900 bg-slateDark-50 text-white-100 outline-none rounded-md w-52 h-9"
+      : "pl-2 border-2 border-slateDark-50 bg-slateDark-50 text-white-100 outline-none rounded-md w-52 h-9";
   };
 
   return (
-    <>
+    <div>
       <ToastContainer theme="dark" autoClose={3000} />
       <div className="py-3 text-left uppercase font-bold text-base">
         <button
@@ -91,7 +111,14 @@ const CreateUrl = ({ openModal, setOpenModal }: any) => {
         setShowModal={setOpenModal}
         title="Criar Link"
       >
-        <form className="flex flex-col text-white-100 w-72 gap-3">
+        <form className="flex flex-col items-center text-center text-white-100 w-72 gap-3">
+          {isError ? (
+            <p className="text-tomato-900">
+              {showUrlErrorMessages(error.response.data.errors[0].message)}
+            </p>
+          ) : (
+            ""
+          )}
           <div className="flex flex-col items-center">
             <label htmlFor="title">Título</label>
             <input
@@ -99,7 +126,7 @@ const CreateUrl = ({ openModal, setOpenModal }: any) => {
               id="title"
               type="text"
               placeholder="Título da sua URL"
-              className="pl-2 border-2 border-slateDark-50 bg-slateDark-50 text-white-100 outline-none rounded-md w-52 h-8"
+              className={showErrorBordForm("title")}
             />
           </div>
 
@@ -110,7 +137,7 @@ const CreateUrl = ({ openModal, setOpenModal }: any) => {
               id="url"
               type="text"
               placeholder="Sua url"
-              className="pl-2 border-2 border-slateDark-50 bg-slateDark-50 text-white-100 outline-none rounded-md w-52 h-8"
+              className={showErrorBordForm("url")}
             />
           </div>
 
@@ -120,7 +147,7 @@ const CreateUrl = ({ openModal, setOpenModal }: any) => {
               onChange={(e) => setExecuteDate(e.target.value)}
               id="execute-date"
               type="datetime-local"
-              className="pl-2 border-2 border-slateDark-50 bg-slateDark-50 text-white-100 outline-none rounded-md w-52 h-8"
+              className={showErrorBordForm("executeDate")}
             />
           </div>
 
@@ -129,7 +156,7 @@ const CreateUrl = ({ openModal, setOpenModal }: any) => {
             <select
               name="link-execution"
               onChange={(e) => setLinkExecution(e.target.value)}
-              className="pl-2 border-2 border-slateDark-50 bg-slateDark-50 text-white-100 outline-none rounded-md w-52 h-8"
+              className={showErrorBordForm("linkExecution")}
             >
               <option value="NO_REPEAT">Não Repetir</option>
               <option value="ON_SPECIFIC_DAY">
@@ -143,7 +170,7 @@ const CreateUrl = ({ openModal, setOpenModal }: any) => {
           </div>
 
           <button
-            type="submit"
+            type="button"
             onClick={() => createUrlMethod()}
             className="bg-blue-1003 text-slateDark-650 font-bold uppercase text-sm px-6 mt-2 py-3 rounded shadow hover:opacity-50 outline-none focus:outline-none mr-1 mb-1"
           >
@@ -151,7 +178,7 @@ const CreateUrl = ({ openModal, setOpenModal }: any) => {
           </button>
         </form>
       </Modal>
-    </>
+    </div>
   );
 };
 
