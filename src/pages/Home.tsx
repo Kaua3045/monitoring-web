@@ -11,7 +11,7 @@ const Home = () => {
 
       <div className="flex flex-col items-center justify-center mt-24">
         <div className="bg-slateDark-650 rounded-sm shadow-md w-1/2">
-          <div className="flex flex-col justify-center items-center gap-3 w-full mb-3">
+          <div className="flex flex-col justify-center items-center gap-3 w-full mb-3 px-3">
             <h1 className="font-semibold text-lg text-white-100 pt-3">
               Monitoring
             </h1>
