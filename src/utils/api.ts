@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const Api = axios.create({
-  baseURL: "http://localhost:8080/api",
+  baseURL: import.meta.env.VITE_BACKEND_URL,
   headers: { "Access-Control-Allow-Origin": "*" },
 });
 
