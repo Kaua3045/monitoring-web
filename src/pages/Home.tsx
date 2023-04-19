@@ -16,8 +16,8 @@ const Home = () => {
               Monitoring
             </h1>
             <p className="text-sm tracking-wide text-center text-white-100/80">
-              Esse projeto foi construído com a finalidade de estudo, juntando
-              todo o meu conhecimento em backend e frontend. O objetivo dele é
+              Esse projeto foi construído com a finalidade de estudo, juntando o
+              meu conhecimento de backend e frontend. O objetivo dele é
               verificar uma URL, se ela está retornando um erro ou se está
               funcionando corretamente conforme o esperado. Você pode configurar
               quando vai executar, selecionar o método, se vai repetir, se vai
