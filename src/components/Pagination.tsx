@@ -105,7 +105,7 @@ const Pagination = () => {
       <div>
         {data !== undefined && (
           <ReactPaginate
-            className="flex justify-center gap-1 mt-4"
+            className="flex justify-center gap-1 mt-4 mb-10"
             nextLabel={<FiChevronRight size={32} />}
             nextClassName="bg-slateDark-650
         w-9 h-9 text-white-100 
