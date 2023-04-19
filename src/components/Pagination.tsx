@@ -22,7 +22,7 @@ const Pagination = () => {
       const response = await Api.get(`/links/list/${user.profileId}`, {
         params: {
           page: currentPage,
-          perPage: 1,
+          perPage: 10,
         },
         headers: {
           Authorization: `Bearer ${token}`,
