@@ -4,6 +4,8 @@
 
 body {
   font-family: 'Inter', sans-serif;
+  background-color: #1f242d;
+  height: auto;
 }
 
 input:-webkit-autofill,
