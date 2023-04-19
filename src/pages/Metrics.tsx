@@ -6,7 +6,6 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import Footer from "../components/Footer";
 import LinkResponseTooltip from "../components/LinkResponseTooltip";
 import Nav from "../components/Nav";
 import { useAuth } from "../context/auth/useAuth";
@@ -191,8 +190,6 @@ const Metrics = () => {
           </div>
         </div>
       </div>
-
-      <Footer container="mt-24" />
     </div>
   );
 };
