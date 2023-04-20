@@ -13,7 +13,7 @@ const Profile = () => {
       <Nav />
 
       <div className="flex flex-col items-center mt-24">
-        <div className="bg-slateDark-650 w-1/5 h-96 flex flex-col items-center justify-center rounded-md shadow-md">
+        <div className="bg-slateDark-650 max-w-[50%] px-8 h-96 flex flex-col items-center justify-center rounded-md shadow-md">
           <div className="pt-6">
             {user.avatarUrl ? (
               <img
