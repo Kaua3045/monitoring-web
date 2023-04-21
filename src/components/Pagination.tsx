@@ -8,6 +8,7 @@ import Api from "../utils/api";
 import LoadUserUrls from "./url/LoadUserUrls";
 import CreateUrl from "./url/CreateUrl";
 import { queryClient } from "../utils/ReactQuery";
+import LoadUserUrlsCard from "./url/LoadUserUrlsCard";
 
 const queryKeyName = "list_user_links";
 
@@ -76,7 +77,7 @@ const Pagination = () => {
         </span>
       </div>
 
-      <table className="min-w-full bg-slateDark-1002">
+      <table className="min-w-full bg-slateDark-1002 hidden lg:block">
         <thead className="bg-slateDark-650 text-blue-1002">
           <tr>
             <th className="w-1/3 text-left py-3 px-4 uppercase font-semibold text-sm">
@@ -107,6 +108,14 @@ const Pagination = () => {
           )}
         </tbody>
       </table>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:hidden">
+        {data !== undefined && data.items.length > 0 ? (
+          <LoadUserUrlsCard items={data.items} total={data.total} />
+        ) : (
+          <div />
+        )}
+      </div>
 
       <div>
         {data !== undefined && (
