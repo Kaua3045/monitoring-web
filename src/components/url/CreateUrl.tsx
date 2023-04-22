@@ -163,9 +163,6 @@ const CreateUrl = ({ openModal, setOpenModal }: ModalStatus) => {
                 Executar no dia específico e na hora, todo mês
               </option>
               <option value="EVERY_DAYS">Executar todos os dias</option>
-              <option value="TWO_TIMES_A_MONTH">
-                Executar duas vezes no mês
-              </option>
             </select>
           </div>
 
