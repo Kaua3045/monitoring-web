@@ -27,7 +27,7 @@ const Home = () => {
           </div>
 
           <div className="pl-4 mb-3">
-            <h3 className="text-white-100 mb-2">Para reportar bugs:</h3>
+            <h3 className="text-white-100 mb-2">Minhas redes sociais:</h3>
 
             <div className="flex items-center gap-3">
               <a

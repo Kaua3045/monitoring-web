@@ -71,11 +71,11 @@ const Pagination = () => {
         </div> */}
       </div>
 
-      <div className="mb-2">
+      {/* <div className="mb-2">
         <span className="text-white-100/90">
           Para acessar as métricas do seu link, clique no título dele.
         </span>
-      </div>
+      </div> */}
 
       <table className="min-w-full bg-slateDark-1002 hidden lg:block">
         <thead className="bg-slateDark-650 text-blue-1002">
