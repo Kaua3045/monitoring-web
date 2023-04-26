@@ -1,7 +1,6 @@
 /* eslint-disable react/jsx-no-useless-fragment */
 import { Link } from "react-router-dom";
 import { MdOpenInNew } from "react-icons/md";
-import PopoverLinkExecution from "../LinkExecutionType";
 import DeleteUrlDialog from "./DeleteUrl";
 import UpdateUrlDialog from "./UpdateUrl";
 

@@ -1,4 +1,5 @@
 /* eslint-disable react/jsx-no-useless-fragment */
+import { MdOpenInNew } from "react-icons/md";
 import { Link } from "react-router-dom";
 import PopoverLinkExecution from "../LinkExecutionType";
 import DeleteUrlDialog from "./DeleteUrl";
@@ -27,9 +28,10 @@ const LoadUserUrls = ({ items, total }: LoadUserUrlsType) => {
               <td className="w-1/3 text-left py-3 px-4">
                 <Link
                   to={`/metrics/${item.id}`}
-                  className="text-slateDark-50 hover:opacity-70"
+                  className="text-slateDark-50 hover:opacity-70 flex items-center gap-1"
                 >
                   {item.title}
+                  <MdOpenInNew />
                 </Link>
               </td>
               <td className="w-1/3 text-left py-3 px-4">
