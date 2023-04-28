@@ -2,8 +2,10 @@
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}", "./index.html"],
   theme: {
-    screens: {
-      "max-sm": { max: "630px" },
+    extend: {
+      screens: {
+        "max-sm": { max: "630px" },
+      },
     },
     ...this.colors,
     colors: {
@@ -96,7 +98,6 @@ module.exports = {
         1002: "#feeadd",
       },
     },
-    extend: {},
   },
   plugins: [],
 };
