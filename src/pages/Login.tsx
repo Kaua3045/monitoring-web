@@ -101,6 +101,13 @@ const Login = () => {
           >
             Login
           </button>
+
+          <p className="text-white-100/75 mb-3">
+            Não possui uma conta ?{" "}
+            <a href="/register" className="text-blue-1001">
+              Clique aqui
+            </a>
+          </p>
         </form>
       </div>
     </div>
