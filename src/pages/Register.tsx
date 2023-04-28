@@ -124,6 +124,13 @@ const Register = () => {
           >
             Register
           </button>
+
+          <p className="text-white-100/75 mb-3">
+            Já possui uma conta ?{" "}
+            <a href="/login" className="text-blue-1001">
+              Clique aqui
+            </a>
+          </p>
         </form>
       </div>
     </div>
