@@ -17,6 +17,7 @@ type UrlMetricsType = {
   responseMessage: string;
   requestTime: string;
   statusCode: number;
+  verifiedDate: string;
 };
 
 type UrlType = {
@@ -156,6 +157,7 @@ const Metrics = () => {
                       message={url.responseMessage}
                       statusCode={url.statusCode}
                       requestTime={url.requestTime}
+                      verifiedDate={url.verifiedDate}
                     />
                   );
                 }
@@ -169,6 +171,7 @@ const Metrics = () => {
                       message={url.responseMessage}
                       statusCode={url.statusCode}
                       requestTime={url.requestTime}
+                      verifiedDate={url.verifiedDate}
                     />
                   );
                 }
@@ -182,6 +185,7 @@ const Metrics = () => {
                       message={url.responseMessage}
                       statusCode={url.statusCode}
                       requestTime={url.requestTime}
+                      verifiedDate={url.verifiedDate}
                     />
                   );
                 }
