@@ -80,21 +80,21 @@ const Pagination = () => {
       <table className="min-w-full bg-slateDark-1002 hidden lg:block">
         <thead className="bg-slateDark-650 text-blue-1002">
           <tr>
-            <th className="w-1/3 text-left py-3 px-4 uppercase font-semibold text-sm">
+            <th className="w-1/3 text-left py-2 px-2 uppercase font-semibold text-sm">
               Título
             </th>
-            <th className="w-1/3 text-left py-3 px-4 uppercase font-semibold text-sm">
+            <th className="w-1/3 text-left py-2 px-2 uppercase font-semibold text-sm">
               Url
             </th>
-            <th className="w-1/3 text-left py-3 px-4 uppercase font-semibold text-sm">
+            <th className="w-1/3 text-left py-2 px-2 uppercase font-semibold text-sm">
               Data de validação
             </th>
-            <th className="w-1/3 text-left py-3 px-4 uppercase font-semibold text-sm">
+            <th className="w-1/3 text-left py-2 px-2 uppercase font-semibold text-sm">
               Tipo de validação
             </th>
 
             <th
-              className="w-1/3 text-left py-3 px-4 uppercase font-semibold text-sm"
+              className="w-1/3 text-left py-2 px-2 uppercase font-semibold text-sm"
               aria-label="Ações"
             />
           </tr>
