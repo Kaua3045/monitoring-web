@@ -26,18 +26,6 @@ module.exports = {
         1001: "#2ec8ee",
         1002: "#eaf8ff",
         1003: "#0ef",
-        // 100: "#fbfdff",
-        // 200: "#f5faff",
-        // 300: "#edf6ff",
-        // 400: "#e1f0ff",
-        // 500: "#cee7fe",
-        // 600: "#b7d9f8",
-        // 700: "#96c7f2",
-        // 800: "#5eb0ef",
-        // 900: "#0091ff",
-        // 1000: "#0081f1",
-        // 1001: "#006adc",
-        // 1002: "#00254d",
       },
       slateDark: {
         50: "#1f242d",
@@ -100,36 +88,6 @@ module.exports = {
     },
   },
   plugins: [],
-};
-
-const slateDark = {
-  slate1: "#151718",
-  slate2: "#1a1d1e",
-  slate3: "#202425",
-  slate4: "#26292b",
-  slate5: "#2b2f31",
-  slate6: "#313538",
-  slate7: "#3a3f42",
-  slate8: "#4c5155",
-  slate9: "#697177",
-  slate10: "#787f85",
-  slate11: "#9ba1a6",
-  slate12: "#ecedee",
-};
-
-const blue = {
-  blue1: "#fbfdff",
-  blue2: "#f5faff",
-  blue3: "#edf6ff",
-  blue4: "#e1f0ff",
-  blue5: "#cee7fe",
-  blue6: "#b7d9f8",
-  blue7: "#96c7f2",
-  blue8: "#5eb0ef",
-  blue9: "#0091ff",
-  blue10: "#0081f1",
-  blue11: "#006adc",
-  blue12: "#00254d",
 };
 
 /*

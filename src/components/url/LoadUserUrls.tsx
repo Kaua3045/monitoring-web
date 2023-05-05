@@ -25,7 +25,7 @@ const LoadUserUrls = ({ items, total }: LoadUserUrlsType) => {
         ? ""
         : items.map((item) => (
             <tr key={item.id}>
-              <td className="w-1/3 text-left py-3 px-4">
+              <td className="w-1/3 text-left py-2 px-3">
                 <Link
                   to={`/metrics/${item.id}`}
                   className="text-slateDark-50 hover:opacity-70 flex items-center gap-1"
@@ -34,7 +34,7 @@ const LoadUserUrls = ({ items, total }: LoadUserUrlsType) => {
                   <MdOpenInNew />
                 </Link>
               </td>
-              <td className="w-1/3 text-left py-3 px-4">
+              <td className="w-1/3 text-left py-2 px-3">
                 <a
                   href={item.url}
                   className="text-slateDark-50 hover:opacity-70"
@@ -42,14 +42,14 @@ const LoadUserUrls = ({ items, total }: LoadUserUrlsType) => {
                   {item.url.length > 35 ? item.url.slice(0, 28) : item.url}
                 </a>
               </td>
-              <td className="w-1/3 text-left py-3 px-4 text-slateDark-50">
+              <td className="w-1/3 text-left py-2 px-3 text-slateDark-50">
                 {item.executeDateFormatted}
               </td>
-              <td className="w-1/3 text-center py-3 px-4">
+              <td className="w-1/3 text-center py-2 px-3">
                 <PopoverLinkExecution linkExecution={item.linkExecution} />
               </td>
 
-              <td className="w-1/3 flex gap-3 py-3 px-4">
+              <td className="w-1/3 flex gap-3 py-2 px-3">
                 <UpdateUrlDialog
                   id={item.id}
                   title={item.title}
