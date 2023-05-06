@@ -24,7 +24,10 @@ const LoadUserUrls = ({ items, total }: LoadUserUrlsType) => {
       {total <= 0
         ? ""
         : items.map((item) => (
-            <tr key={item.id}>
+            <tr
+              key={item.id}
+              className="border-b-[1px] border-slateDark-1001/20 last:border-none"
+            >
               <td className="w-1/3 text-left py-2 px-3">
                 <Link
                   to={`/metrics/${item.id}`}
