@@ -33,16 +33,20 @@ const LoadUserUrls = ({ items, total }: LoadUserUrlsType) => {
                   to={`/metrics/${item.id}`}
                   className="text-slateDark-50 hover:opacity-70 flex items-center gap-1"
                 >
-                  {item.title}
+                  {item.title.length > 13
+                    ? item.title.slice(0, 13)
+                    : item.title}
                   <MdOpenInNew />
                 </Link>
               </td>
               <td className="w-1/3 text-left py-2 px-3">
                 <a
                   href={item.url}
+                  target="_blank"
                   className="text-slateDark-50 hover:opacity-70"
+                  rel="noreferrer"
                 >
-                  {item.url.length > 35 ? item.url.slice(0, 28) : item.url}
+                  {item.url.length > 25 ? item.url.slice(0, 25) : item.url}
                 </a>
               </td>
               <td className="w-1/3 text-left py-2 px-3 text-slateDark-50">
